@@ -1,7 +1,8 @@
 /// <reference types="vite/client" />
 
 const API_KEY = import.meta.env.VITE_GEMMA_API_KEY as string;
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:generateContent?key=${API_KEY}`;
+const MODEL = 'gemini-2.0-flash-lite';
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
 const SYSTEM_PROMPT = `You are an email autocomplete engine built into Gmail. The user is actively typing an email and you must predict what comes next.
 
 Rules:
@@ -36,8 +37,9 @@ export async function getSuggestion(context: string, signal: AbortSignal): Promi
         },
         contents: [{ parts: [{ text: context }] }],
         generationConfig: {
-          maxOutputTokens: 30,
-          temperature: 0.3,
+          maxOutputTokens: 20,
+          temperature: 0.2,
+          candidateCount: 1,
         },
       }),
       signal,
