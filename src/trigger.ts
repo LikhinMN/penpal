@@ -1,9 +1,15 @@
-export let currentAbortController: AbortController | null = null;
-
 export function createTrigger(onTrigger: (context: string) => void): (e: Event) => void {
   let debounceTimer: number | null = null;
+  let currentAbortController: AbortController | null = null;
+  let lastFireTime = 0;
 
   return (e: Event) => {
+    const now = Date.now();
+    if (now - lastFireTime < 50) {
+      return;
+    }
+    lastFireTime = now;
+
     if (debounceTimer) {
       clearTimeout(debounceTimer);
     }
@@ -29,7 +35,10 @@ export function createTrigger(onTrigger: (context: string) => void): (e: Event) 
       currentAbortController = new AbortController();
 
       // Extract context and fire trigger
-      const context = fullText.slice(-300);
+      const subjectEl = document.querySelector('input[aria-label="Subject"]') as HTMLInputElement | null;
+      const subject = subjectEl?.value?.trim() ?? '';
+      const body = fullText.slice(-300);
+      const context = subject ? `Subject: ${subject}\n\nEmail body so far: ${body}` : body;
       onTrigger(context);
 
     }, 500);
