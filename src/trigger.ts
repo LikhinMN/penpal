@@ -2,6 +2,7 @@ export function createTrigger(onTrigger: (context: string) => void): (e: Event) 
   let debounceTimer: number | null = null;
   let currentAbortController: AbortController | null = null;
   let lastFireTime = 0;
+  let lastSuggestionTime = 0;
 
   return (e: Event) => {
     const now = Date.now();
@@ -39,8 +40,14 @@ export function createTrigger(onTrigger: (context: string) => void): (e: Event) 
       const subject = subjectEl?.value?.trim() ?? '';
       const body = fullText.slice(-300);
       const context = subject ? `Subject: ${subject}\n\nEmail body so far: ${body}` : body;
+
+      const nowMs = Date.now();
+      if (nowMs - lastSuggestionTime < 3000) {
+        return;
+      }
+      lastSuggestionTime = nowMs;
       onTrigger(context);
 
-    }, 500);
+    }, 800);
   };
 }

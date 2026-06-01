@@ -11,10 +11,20 @@ detectComposeBox((composeEl) => {
     // remove ghost before reading context to avoid polluting API call
     removeGhost(composeEl);
 
-    const response = await chrome.runtime.sendMessage({
-      type: 'GET_SUGGESTION',
-      context,
-    });
+    if (!chrome.runtime?.id) {
+      return;
+    }
+
+    let response: { suggestion?: string } | undefined;
+    try {
+      response = await chrome.runtime.sendMessage({
+        type: 'GET_SUGGESTION',
+        context,
+      });
+    } catch (error) {
+      console.log('[Penpal] sendMessage failed', error);
+      return;
+    }
 
     if (response?.suggestion) {
       console.log('[Penpal] Suggestion:', response.suggestion);
